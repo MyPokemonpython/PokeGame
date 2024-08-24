@@ -1,6 +1,4 @@
 from pymongo import MongoClient
-from fastapi import FastAPI, HTTPException
-
 
 class MongoDBService:
     def __init__(self, uri, db_name):
