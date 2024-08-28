@@ -1,7 +1,9 @@
+# main.py
 from fastapi import HTTPException, FastAPI
 from pydantic import BaseModel
 from UserManager.models.usermanager import User
 from mongoDb.mon import MongoDBService
+import uvicorn
 
 app = FastAPI()
 db_service = MongoDBService("mongodb://localhost:27017", "PokemonUsers")
@@ -37,6 +39,22 @@ def get_user(user_id: str):
 
 @app.put("/users/{user_id}")
 def update_user(user_id: str, user: UserModel):
-    user_obj = User(user_id=user_id, **user.dict())
-    db_service.update_user(user_obj)
-    return {"msg": f"User updated {user.full_name}"}
+    user_data = user.dict(exclude={"user_id"})
+    user_obj = User(user_id=user_id, **user_data)
+    try:
+        db_service.update_user(user_obj)
+        return {"msg": f"User updated: {user.full_name}"}
+    except HTTPException as e:
+        raise e
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=str(ex))
+
+
+@app.get("/users/")
+def get_all_users():
+    users = db_service.get_all_users()
+    return users
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
