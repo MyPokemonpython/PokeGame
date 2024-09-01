@@ -27,4 +27,4 @@ class TriviaService:
         return False
 
 
-BASE_URL = " https://pokeapi.co/api/v2"
+
